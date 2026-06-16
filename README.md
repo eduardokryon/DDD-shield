@@ -206,9 +206,29 @@ Abra o DDDLock e ative as permissões solicitadas:
 
 ### 5. Configure como app padrão
 
+**Opção A — Pelo app:**
+1. Abra o DDDLock
+2. O app irá solicitar automaticamente a permissão de Call Screening
+3. Toque em **"Allow"** quando solicitado
+
+**Opção B — Pelas configurações:**
 ```
-Configurações → Apps → Apps padrão → App de bloqueio de chamadas → DDDLock
+Configurações → Apps → DDDLock → Permissões → Phone → Permitir
 ```
+
+### 6. Defina como app padrão (se disponível)
+
+```
+Configurações → Apps → Apps padrão → Phone app → DDDLock
+```
+
+Ou:
+
+```
+Configurações → Apps → Apps padrão → Caller ID & spam app → DDDLock
+```
+
+> Se nenhuma opção aparecer, não se preocupe — o app funcionará apenas com a permissão de Phone concedida no passo 5.
 
 ---
 
