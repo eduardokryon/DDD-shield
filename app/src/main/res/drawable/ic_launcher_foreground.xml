@@ -4,8 +4,16 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Shield shape -->
     <path
         android:fillColor="#E94560"
-        android:pathData="M54,30 C40.7,30 30,40.7 30,54 C30,67.3 40.7,78 54,78 C67.3,78 78,67.3 78,54 C78,40.7 67.3,30 54,30Z M62,62 L50,50 L50,38 L54,38 L54,48 L64,58 Z"
-        android:strokeWidth="0" />
+        android:pathData="M54,28 L32,38 L32,52 C32,68 42,82 54,86 C66,82 76,68 76,52 L76,38 Z" />
+    <!-- Check mark inside shield -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,54 L52,60 L64,48"
+        android:strokeWidth="4"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>
