@@ -1,12 +1,11 @@
 package com.dddlock
 
 import android.Manifest
+import android.app.role.RoleManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -43,8 +42,17 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val allGranted = permissions.values.all { it }
-        if (!allGranted) {
-            // Permissão negada, pode mostrar aviso
+        if (allGranted) {
+            // Permissões concedidas, solicitar Role de Call Screening
+            requestCallScreeningRole()
+        }
+    }
+
+    private val callScreeningRoleLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Role concedida com sucesso
         }
     }
 
@@ -61,7 +69,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Solicitar permissões na primeira vez
+        // Solicitar permissões e Role na primeira vez
         requestPermissions()
     }
 
@@ -86,6 +94,21 @@ class MainActivity : ComponentActivity() {
 
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            // Permissões já concedidas, solicitar Role
+            requestCallScreeningRole()
+        }
+    }
+
+    private fun requestCallScreeningRole() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(RoleManager::class.java)
+            if (roleManager?.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) == true
+                && !roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
+            ) {
+                val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)
+                callScreeningRoleLauncher.launch(intent)
+            }
         }
     }
 }
