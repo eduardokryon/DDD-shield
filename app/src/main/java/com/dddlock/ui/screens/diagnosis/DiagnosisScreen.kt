@@ -1,10 +1,13 @@
 package com.dddlock.ui.screens.diagnosis
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,14 +25,19 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.dddlock.ui.components.StatusCard
 import com.dddlock.ui.theme.StatusActive
@@ -46,6 +54,7 @@ fun DiagnosisScreen(
     viewModel: DiagnosisViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -120,6 +129,19 @@ fun DiagnosisScreen(
             )
         }
 
+        // Botão para abrir configurações de Call Screening
+        OutlinedButton(
+            onClick = { openCallScreeningSettings(context) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Configurar Call Screening")
+        }
+
         Button(
             onClick = { viewModel.refresh() },
             modifier = Modifier.fillMaxWidth(),
@@ -128,6 +150,32 @@ fun DiagnosisScreen(
             Text(
                 if (uiState.isLoading) "Atualizando..." else "Atualizar diagnóstico"
             )
+        }
+    }
+}
+
+private fun openCallScreeningSettings(context: Context) {
+    try {
+        // Tenta abrir diretamente as configurações de Call Screening
+        val intent = Intent("android.telecom.action.MANAGE_CALL_SCREENING_PERMISSIONS").apply {
+            putExtra("android.telecom.extra.PACKAGE_NAME", context.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // Se não funcionar, abre as configurações gerais de apps
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = android.net.Uri.fromParts("package", context.packageName, null)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e2: Exception) {
+            // Último recurso: abre configurações gerais
+            val intent = Intent(Settings.ACTION_APPLICATION_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
         }
     }
 }
