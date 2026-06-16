@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DDDLock</string>
+    <string name="home_title">Início</string>
+    <string name="diagnosis_title">Diagnóstico</string>
+    <string name="about_title">Sobre</string>
+    <string name="blocker_active">Bloqueador ativo</string>
+    <string name="blocker_inactive">Bloqueador inativo</string>
+    <string name="ddds_blocked">DDDs bloqueados</string>
+    <string name="search_ddd">Buscar DDD</string>
+    <string name="ddds_available">DDDs disponíveis</string>
+    <string name="service_active">Serviço ativo</string>
+    <string name="permission_granted">Permissão concedida</string>
+    <string name="role_granted">Função concedida</string>
+    <string name="app_version">Versão</string>
+    <string name="package_name">Package</string>
+    <string name="last_update">Última atualização</string>
+    <string name="app_description">Controle quais regiões podem ligar para você</string>
+    <string name="created_by">Criado por Eduardo Brito</string>
+    <string name="github_link">GitHub: @eduardokryon</string>
+    <string name="active">Ativo</string>
+    <string name="inactive">Inativo</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="no_ddds_selected">Nenhum DDD selecionado</string>
+    <string name="no_results">Nenhum resultado encontrado</string>
+    <string name="ddds_found">DDDs encontrados</string>
+</resources>
