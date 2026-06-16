@@ -8,7 +8,7 @@ DDDLock é um aplicativo Android que permite bloquear automaticamente chamadas t
 
 <div align="center">
 
-### [📥 Baixar APK (v1.0.3)](https://github.com/eduardokryon/DDD-shield/releases/latest)
+### [📥 Baixar APK (v1.0.4)](https://github.com/eduardokryon/DDD-shield/releases/latest)
 
 </div>
 
