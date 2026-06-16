@@ -44,16 +44,23 @@ class DDDCallScreeningService : CallScreeningService() {
      * - +5588999999999  → 88
      * - 5588999999999   → 88
      * - 88999999999     → 88
+     * - 08899999999     → 88 (com prefixo 0 de discagem)
      * - (88) 99999-9999 → 88
      * - 0800...         → null (toll-free)
+     * - 0300...         → null (toll-free)
      */
     internal fun extractDDDFromNumber(number: String?): String? {
         if (number.isNullOrBlank()) return null
 
-        val digits = number.filter { it.isDigit() }
+        var digits = number.filter { it.isDigit() }
 
-        // Toll-free numbers (0800, 0300, etc.)
-        if (digits.startsWith("0") && digits.length >= 4) return null
+        // Toll-free numbers (0800, 0300, etc.) — verificar ANTES de remover o 0
+        if (digits.startsWith("0800") || digits.startsWith("0300")) return null
+
+        // Remover prefixo 0 de discagem nacional (0 + DDD)
+        if (digits.startsWith("0") && digits.length > 2) {
+            digits = digits.substring(1)
+        }
 
         return when {
             digits.length == 2 -> digits  // apenas o DDD
