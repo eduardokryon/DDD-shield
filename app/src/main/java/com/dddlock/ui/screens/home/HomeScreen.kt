@@ -19,11 +19,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.dddlock.ui.components.DDDListItem
@@ -33,7 +36,7 @@ import com.dddlock.ui.theme.StatusActive
 import com.dddlock.ui.theme.StatusInactive
 
 /**
- * DDDLock
+ * DDD Shield
  * Criado por Eduardo Brito
  * GitHub: @eduardokryon
  */
@@ -99,6 +102,25 @@ fun HomeScreen(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        // Select All
+        val allSelected = uiState.filteredDDDs.isNotEmpty() &&
+                uiState.filteredDDDs.all { it.code in uiState.blockedCodes }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = allSelected,
+                onCheckedChange = { viewModel.onToggleAll(it) }
+            )
+            Text(
+                text = if (allSelected) "Desmarcar todos" else "Selecionar todos",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // DDD List with item animations
         LazyColumn(

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
- * DDDLock
+ * DDD Shield
  * Criado por Eduardo Brito
  * GitHub: @eduardokryon
  */
@@ -81,6 +81,20 @@ class HomeViewModel(
         viewModelScope.launch {
             val newState = !_uiState.value.blockerStatus.isEnabled
             setBlockerEnabled(newState)
+        }
+    }
+
+    fun onToggleAll(selectAll: Boolean) {
+        viewModelScope.launch {
+            val dddsToToggle = _uiState.value.filteredDDDs
+            dddsToToggle.forEach { ddd ->
+                val isCurrentlyBlocked = ddd.code in _uiState.value.blockedCodes
+                if (selectAll && !isCurrentlyBlocked) {
+                    toggleDDDBlock(ddd.code, true)
+                } else if (!selectAll && isCurrentlyBlocked) {
+                    toggleDDDBlock(ddd.code, false)
+                }
+            }
         }
     }
 }
