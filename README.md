@@ -1,10 +1,10 @@
 <div align="center">
 
-# DDDLock
+# DDD Shield
 
 **Bloqueio inteligente de chamadas por DDD**
 
-[**Baixar APK (v1.1.0)**](https://github.com/eduardokryon/DDD-shield/releases/latest)
+[**Baixar APK (v1.1.1)**](https://github.com/eduardokryon/DDD-shield/releases/latest)
 
 </div>
 
@@ -12,11 +12,11 @@
 
 ## Sobre
 
-DDDLock e um aplicativo Android que bloqueia automaticamente chamadas telefonicas de DDDs brasileiros selecionados pelo usuario. Construido exclusivamente com a API oficial `CallScreeningService` do Android — sem servicos em primeiro plano, sem hacks de acessibilidade, sem drenagem de bateria.
+DDD Shield e um aplicativo Android que bloqueia automaticamente chamadas telefonicas de DDDs brasileiros selecionados pelo usuario. Construido exclusivamente com a API oficial `CallScreeningService` do Android — sem servicos em primeiro plano, sem hacks de acessibilidade, sem drenagem de bateria.
 
 ### Por que?
 
-O Brasil recebe milhoes de chamadas indesejadas diariamente — telemarketing, golpes, cobranca. O DDDLock devolve ao usuario o controle de quais regiões podem alcancar seu telefone.
+O Brasil recebe milhoes de chamadas indesejadas diariamente — telemarketing, golpes, cobranca. O DDD Shield devolve ao usuario o controle de quais regiões podem alcancar seu telefone.
 
 ### Funcionalidades
 
@@ -31,7 +31,7 @@ O Brasil recebe milhoes de chamadas indesejadas diariamente — telemarketing, g
 
 ## Hierarquia de Bloqueio
 
-O DDDLock utiliza um sistema de prioridades para determinar se uma chamada deve ser bloqueada:
+O DDD Shield utiliza um sistema de prioridades para determinar se uma chamada deve ser bloqueada:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -74,7 +74,7 @@ O DDDLock utiliza um sistema de prioridades para determinar se uma chamada deve 
 
 ## Como Funciona
 
-O DDDLock utiliza o `CallScreeningService` do Android, uma API de nivel do sistema que intercepta chamadas recebidas antes que toquem. Quando uma chamada chega:
+O DDD Shield utiliza o `CallScreeningService` do Android, uma API de nivel do sistema que intercepta chamadas recebidas antes que toquem. Quando uma chamada chega:
 
 1. Verifica se o numero esta na lista de exceções (se sim, libera)
 2. Verifica se o numero esta bloqueado explicitamente (se sim, bloqueia)
@@ -106,19 +106,19 @@ Baixe o APK mais recente em [Releases](https://github.com/eduardokryon/DDD-shiel
 
 1. Ative "Fontes desconhecidas" para o seu gerenciador de arquivos/navegador
 2. Instale o APK
-3. Abra o DDDLock — ele ira solicitar as permissoes necessarias
-4. Defina o DDDLock como seu app padrao de Call Screening quando solicitado
+3. Abra o DDD Shield — ele ira solicitar as permissoes necessarias
+4. Defina o DDD Shield como seu app padrao de Call Screening quando solicitado
 5. Leia e aceite as instrucoes no popup de boas-vindas
 
 Se o aviso nao aparecer:
 
 ```
-Configuracoes → Apps → Apps padrao → App de bloqueio de chamadas → DDDLock
+Configuracoes → Apps → Apps padrao → App de bloqueio de chamadas → DDD Shield
 ```
 
 ### Uso
 
-1. Abra o DDDLock
+1. Abra o DDD Shield
 2. Leia o popup de instrucoes e marque que leu
 3. Na aba **Início**, selecione os DDDs que deseja bloquear
 4. Ative o bloqueador
@@ -174,7 +174,7 @@ Clean Architecture com padrao MVVM.
 ```
 app/src/main/java/com/dddlock/
 ├── AppContainer.kt            # Injecao de dependencias
-├── DDDLockApplication.kt      # Ponto de entrada da Application
+├── DDD ShieldApplication.kt      # Ponto de entrada da Application
 ├── MainActivity.kt            # Activity principal + navegacao
 ├── model/                     # Modelos de dados
 ├── data/                      # Repositorio + DataStore
