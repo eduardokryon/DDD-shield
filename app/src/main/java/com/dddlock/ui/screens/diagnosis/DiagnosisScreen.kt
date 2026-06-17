@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
@@ -99,6 +100,13 @@ fun DiagnosisScreen(
             value = if (uiState.isRoleGranted) "Concedida" else "Não concedida",
             icon = Icons.Default.VerifiedUser,
             iconTint = if (uiState.isRoleGranted) StatusActive else StatusInactive
+        )
+
+        StatusCard(
+            title = "Permissão de contatos",
+            value = if (uiState.isContactsPermissionGranted) "Concedida (contatos protegidos)" else "Não concedida",
+            icon = Icons.Default.Person,
+            iconTint = if (uiState.isContactsPermissionGranted) StatusActive else StatusInactive
         )
 
         StatusCard(

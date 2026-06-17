@@ -1,7 +1,12 @@
 package com.dddlock.service
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.provider.ContactsContract
 import android.telecom.Call
 import android.telecom.CallScreeningService
+import androidx.core.content.ContextCompat
 import com.dddlock.DDDLockApplication
 import kotlinx.coroutines.runBlocking
 
@@ -12,11 +17,19 @@ import kotlinx.coroutines.runBlocking
  *
  * Serviço de bloqueio de chamadas baseado em DDDs.
  * Utiliza exclusivamente a API oficial CallScreeningService.
+ * Números na lista de contatos NÃO são bloqueados.
  */
 class DDDCallScreeningService : CallScreeningService() {
 
     override fun onScreenCall(callDetails: Call.Details) {
         val phoneNumber = extractPhoneNumber(callDetails)
+
+        // Se o número está nos contatos, não bloqueia
+        if (isContact(phoneNumber)) {
+            respondToCall(callDetails, createResponse(false))
+            return
+        }
+
         val ddd = extractDDDFromNumber(phoneNumber)
 
         if (ddd == null) {
@@ -35,6 +48,63 @@ class DDDCallScreeningService : CallScreeningService() {
         val handle = callDetails.handle ?: return null
         return if (handle.schemeSpecificPart.isNullOrBlank()) null
         else handle.schemeSpecificPart
+    }
+
+    /**
+     * Verifica se o número está na lista de contatos do dispositivo.
+     */
+    private fun isContact(phoneNumber: String?): Boolean {
+        if (phoneNumber.isNullOrBlank()) return false
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            return false
+        }
+
+        val digits = phoneNumber.filter { it.isDigit() }
+        // Normalizar: remover código do país para comparação
+        val normalizedNumber = when {
+            digits.startsWith("55") && digits.length >= 12 -> digits.substring(2)
+            digits.startsWith("0") && digits.length > 2 -> digits.substring(1)
+            else -> digits
+        }
+
+        var cursor: Cursor? = null
+        try {
+            cursor = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                null,
+                null,
+                null
+            )
+
+            cursor?.let {
+                while (it.moveToNext()) {
+                    val contactNumber = it.getString(0) ?: continue
+                    val contactDigits = contactNumber.filter { c -> c.isDigit() }
+                    // Normalizar número do contato
+                    val normalizedContact = when {
+                        contactDigits.startsWith("55") && contactDigits.length >= 12 -> contactDigits.substring(2)
+                        contactDigits.startsWith("0") && contactDigits.length > 2 -> contactDigits.substring(1)
+                        else -> contactDigits
+                    }
+                    // Comparar últimos 8 dígitos (ignorando DDD para maior compatibilidade)
+                    if (normalizedNumber.length >= 8 && normalizedContact.length >= 8) {
+                        if (normalizedNumber.takeLast(8) == normalizedContact.takeLast(8)) {
+                            return true
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Em caso de erro, não bloqueia
+            return false
+        } finally {
+            cursor?.close()
+        }
+
+        return false
     }
 
     /**

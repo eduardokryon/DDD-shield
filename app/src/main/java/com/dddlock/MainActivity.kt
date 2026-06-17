@@ -83,6 +83,13 @@ class MainActivity : ComponentActivity() {
             permissionsToRequest.add(Manifest.permission.CALL_PHONE)
         }
 
+        // Permissão READ_CONTACTS para não bloquear contatos
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.READ_CONTACTS)
+        }
+
         // Android 13+ precisa de POST_NOTIFICATIONS
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)

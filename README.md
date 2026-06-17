@@ -48,6 +48,10 @@ Tudo isso utilizando **apenas** a API oficial `CallScreeningService`, sem depend
 - ❌ Acessibilidade
 - ❌ Hacks ou APIs obsoletas
 
+### Proteção de Contatos
+
+Números salvos na sua lista de contatos **não são bloqueados**, mesmo que estejam em um DDD bloqueado. Isso garante que familiares, amigos e contatos importantes nunca sejam impedidos de ligar.
+
 ---
 
 ## Arquitetura

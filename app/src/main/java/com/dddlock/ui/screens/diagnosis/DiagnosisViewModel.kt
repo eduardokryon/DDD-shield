@@ -26,6 +26,7 @@ import java.util.Locale
 data class DiagnosisUiState(
     val isServiceActive: Boolean = false,
     val isPermissionGranted: Boolean = false,
+    val isContactsPermissionGranted: Boolean = false,
     val isRoleGranted: Boolean = false,
     val blockedDDDCount: Int = 0,
     val appVersion: String = "",
@@ -69,6 +70,10 @@ class DiagnosisViewModel(
                     context, Manifest.permission.CALL_PHONE
                 ) == PackageManager.PERMISSION_GRANTED
 
+                val hasContactsPermission = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.READ_CONTACTS
+                ) == PackageManager.PERMISSION_GRANTED
+
                 val serviceActive = try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val roleManager = context.getSystemService("role") as? android.app.role.RoleManager
@@ -81,6 +86,7 @@ class DiagnosisViewModel(
                 AppInfo(
                     serviceActive = serviceActive,
                     permissionGranted = hasPermission,
+                    contactsPermissionGranted = hasContactsPermission,
                     roleGranted = hasPermission,
                     version = packageInfo.versionName ?: "1.0.0",
                     packageName = context.packageName,
@@ -91,6 +97,7 @@ class DiagnosisViewModel(
             _uiState.value = _uiState.value.copy(
                 isServiceActive = appInfo.serviceActive,
                 isPermissionGranted = appInfo.permissionGranted,
+                isContactsPermissionGranted = appInfo.contactsPermissionGranted,
                 isRoleGranted = appInfo.roleGranted,
                 appVersion = appInfo.version,
                 packageName = appInfo.packageName,
@@ -103,6 +110,7 @@ class DiagnosisViewModel(
     private data class AppInfo(
         val serviceActive: Boolean,
         val permissionGranted: Boolean,
+        val contactsPermissionGranted: Boolean,
         val roleGranted: Boolean,
         val version: String,
         val packageName: String,
