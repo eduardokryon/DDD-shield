@@ -30,6 +30,12 @@ class DDDCallScreeningService : CallScreeningService() {
             return
         }
 
+        // Verificar se o número específico está bloqueado
+        if (isNumberBlocked(phoneNumber)) {
+            respondToCall(callDetails, createResponse(true))
+            return
+        }
+
         val ddd = extractDDDFromNumber(phoneNumber)
 
         if (ddd == null) {
@@ -145,6 +151,33 @@ class DDDCallScreeningService : CallScreeningService() {
         val app = application as? DDDLockApplication ?: return emptySet()
         return runBlocking {
             app.container.dataStore.getBlockedDDDsOnce()
+        }
+    }
+
+    private fun getBlockedNumbers(): Set<String> {
+        val app = application as? DDDLockApplication ?: return emptySet()
+        return runBlocking {
+            app.container.dataStore.getBlockedNumbersOnce()
+        }
+    }
+
+    private fun isNumberBlocked(phoneNumber: String?): Boolean {
+        if (phoneNumber.isNullOrBlank()) return false
+        val blockedNumbers = getBlockedNumbers()
+        if (blockedNumbers.isEmpty()) return false
+
+        val digits = phoneNumber.filter { it.isDigit() }
+        val normalized = when {
+            digits.startsWith("55") && digits.length >= 12 -> digits.substring(2)
+            digits.startsWith("0") && digits.length > 2 -> digits.substring(1)
+            else -> digits
+        }
+
+        // Verificar correspondência exata ou pelos últimos 8 dígitos
+        return blockedNumbers.any { blocked ->
+            blocked == normalized ||
+            (normalized.length >= 8 && blocked.length >= 8 &&
+             normalized.takeLast(8) == blocked.takeLast(8))
         }
     }
 

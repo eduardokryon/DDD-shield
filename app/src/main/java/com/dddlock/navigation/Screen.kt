@@ -3,6 +3,7 @@ package com.dddlock.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -22,6 +23,12 @@ sealed class Screen(
         icon = Icons.Default.Home
     )
 
+    data object BlockedNumbers : Screen(
+        route = "blocked",
+        title = "Números",
+        icon = Icons.Default.Block
+    )
+
     data object Diagnosis : Screen(
         route = "diagnosis",
         title = "Diagnóstico",
@@ -35,6 +42,6 @@ sealed class Screen(
     )
 
     companion object {
-        val bottomNavItems = listOf(Home, Diagnosis, About)
+        val bottomNavItems = listOf(Home, BlockedNumbers, Diagnosis, About)
     }
 }

@@ -8,6 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.dddlock.DDDViewModelFactory
 import com.dddlock.ui.screens.about.AboutScreen
+import com.dddlock.ui.screens.blocked.BlockedNumbersScreen
+import com.dddlock.ui.screens.blocked.BlockedNumbersViewModel
 import com.dddlock.ui.screens.diagnosis.DiagnosisScreen
 import com.dddlock.ui.screens.diagnosis.DiagnosisViewModel
 import com.dddlock.ui.screens.home.HomeScreen
@@ -32,6 +34,10 @@ fun DDDNavGraph(
         composable(Screen.Home.route) {
             val viewModel: HomeViewModel = viewModel(factory = viewModelFactory)
             HomeScreen(viewModel = viewModel)
+        }
+        composable(Screen.BlockedNumbers.route) {
+            val viewModel: BlockedNumbersViewModel = viewModel(factory = viewModelFactory)
+            BlockedNumbersScreen(viewModel = viewModel)
         }
         composable(Screen.Diagnosis.route) {
             val viewModel: DiagnosisViewModel = viewModel(factory = viewModelFactory)

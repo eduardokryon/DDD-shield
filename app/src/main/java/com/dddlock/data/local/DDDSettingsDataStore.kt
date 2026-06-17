@@ -23,6 +23,7 @@ class DDDSettingsDataStore(private val context: Context) {
 
     private object Keys {
         val BLOCKED_DDDS = stringSetPreferencesKey("blocked_ddds")
+        val BLOCKED_NUMBERS = stringSetPreferencesKey("blocked_numbers")
         val BLOCKER_ENABLED = booleanPreferencesKey("blocker_enabled")
         val DARK_MODE = booleanPreferencesKey("dark_mode")
         val USE_DYNAMIC_COLORS = booleanPreferencesKey("use_dynamic_colors")
@@ -30,6 +31,10 @@ class DDDSettingsDataStore(private val context: Context) {
 
     val blockedDDDs: Flow<Set<String>> = context.dataStore.data.map { preferences ->
         preferences[Keys.BLOCKED_DDDS] ?: emptySet()
+    }
+
+    val blockedNumbers: Flow<Set<String>> = context.dataStore.data.map { preferences ->
+        preferences[Keys.BLOCKED_NUMBERS] ?: emptySet()
     }
 
     val isBlockerEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -47,6 +52,12 @@ class DDDSettingsDataStore(private val context: Context) {
     suspend fun setBlockedDDDs(ddds: Set<String>) {
         context.dataStore.edit { preferences ->
             preferences[Keys.BLOCKED_DDDS] = ddds
+        }
+    }
+
+    suspend fun setBlockedNumbers(numbers: Set<String>) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.BLOCKED_NUMBERS] = numbers
         }
     }
 
@@ -70,6 +81,10 @@ class DDDSettingsDataStore(private val context: Context) {
 
     suspend fun getBlockedDDDsOnce(): Set<String> {
         return context.dataStore.data.first()[Keys.BLOCKED_DDDS] ?: emptySet()
+    }
+
+    suspend fun getBlockedNumbersOnce(): Set<String> {
+        return context.dataStore.data.first()[Keys.BLOCKED_NUMBERS] ?: emptySet()
     }
 
     suspend fun isBlockerEnabledOnce(): Boolean {
