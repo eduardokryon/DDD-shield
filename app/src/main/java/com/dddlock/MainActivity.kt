@@ -2,7 +2,6 @@ package com.dddlock
 
 import android.Manifest
 import android.app.role.RoleManager
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +18,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -27,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dddlock.navigation.DDDNavGraph
 import com.dddlock.navigation.Screen
+import com.dddlock.ui.components.WelcomeDialog
 import com.dddlock.ui.theme.DDDLockTheme
 
 /**
@@ -43,7 +46,6 @@ class MainActivity : ComponentActivity() {
     ) { permissions ->
         val allGranted = permissions.values.all { it }
         if (allGranted) {
-            // Permissões concedidas, solicitar Role de Call Screening
             requestCallScreeningRole()
         }
     }
@@ -69,28 +71,24 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Solicitar permissões e Role na primeira vez
         requestPermissions()
     }
 
     private fun requestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
-        // Permissão de CALL_PHONE necessária para CallScreeningService
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
             != PackageManager.PERMISSION_GRANTED
         ) {
             permissionsToRequest.add(Manifest.permission.CALL_PHONE)
         }
 
-        // Permissão READ_CONTACTS para não bloquear contatos
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
             != PackageManager.PERMISSION_GRANTED
         ) {
             permissionsToRequest.add(Manifest.permission.READ_CONTACTS)
         }
 
-        // Android 13+ precisa de POST_NOTIFICATIONS
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
@@ -102,7 +100,6 @@ class MainActivity : ComponentActivity() {
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
-            // Permissões já concedidas, solicitar Role
             requestCallScreeningRole()
         }
     }
@@ -127,6 +124,22 @@ fun DDDLockMainScreen(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // Estado do popup de boas-vindas
+    val prefs = androidx.compose.ui.platform.LocalContext.current
+        .getSharedPreferences("dddlock_prefs", android.content.Context.MODE_PRIVATE)
+    var showWelcomeDialog by remember {
+        mutableStateOf(!prefs.getBoolean("welcome_seen", false))
+    }
+
+    if (showWelcomeDialog) {
+        WelcomeDialog(
+            onDismiss = {
+                prefs.edit().putBoolean("welcome_seen", true).apply()
+                showWelcomeDialog = false
+            }
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

@@ -21,10 +21,54 @@ O Brasil recebe milhoes de chamadas indesejadas diariamente — telemarketing, g
 ### Funcionalidades
 
 - Bloqueio de chamadas de qualquer combinacao dos 67 DDDs brasileiros
-- Bloqueio persistente que sobrevive a reinicializacoes sem servicos em segundo plano
-- Protecao de contatos — numeros na sua lista de contatos nunca sao bloqueados
+- Bloqueio de numeros especificos (mesmo que estejam na agenda)
+- Lista de exceções — permita numeros de DDDs bloqueados
+- Protecao de contatos (por padrao)
 - Design Material You com cores dinamicas e modo escuro
 - Zero uso de bateria em segundo plano
+
+---
+
+## Hierarquia de Bloqueio
+
+O DDDLock utiliza um sistema de prioridades para determinar se uma chamada deve ser bloqueada:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  1. EXCEÇÕES (whitelist)                            │
+│     → SEMPRE permitidos                             │
+│     → Mesmo com DDD bloqueado                       │
+├─────────────────────────────────────────────────────┤
+│  2. NÚMEROS BLOQUEADOS                              │
+│     → SEMPRE bloqueados                             │
+│     → Mesmo que estejam na agenda de contatos       │
+├─────────────────────────────────────────────────────┤
+│  3. CONTATOS DA AGENDA                              │
+│     → Permitidos por padrao                         │
+│     → A menos que bloqueados explicitamente         │
+├─────────────────────────────────────────────────────┤
+│  4. DDDs BLOQUEADOS                                 │
+│     → Bloqueados                                    │
+│     → Todos os numeros da regiao                    │
+└─────────────────────────────────────────────────────┘
+```
+
+### Exemplos Praticos
+
+| Cenario | Resultado |
+|---------|-----------|
+| DDD 88 bloqueado | Todos de 88 bloqueados |
+| DDD 88 bloqueado + 088 99999-9999 na exceção | 088 99999-9999 pode ligar |
+| Contato "Mãe" com 088 99999-9999 + DDD 88 bloqueado | Mãe não liga |
+| Contato "Mãe" + 088 99999-9999 na exceção + DDD 88 bloqueado | Mãe pode ligar |
+| Contato "Mãe" + 088 99999-9999 na lista de bloqueados | Mãe não liga (mesmo na agenda) |
+
+### Resumo
+
+- **Quer bloquear uma regiao inteira?** → Bloqueie o DDD
+- **Quer bloquear uma pessoa especifica?** → Bloqueie o numero (mesmo na agenda)
+- **Quer permitir um numero de uma regiao bloqueada?** → Adicione na exceção
+- **Contatos sao protegidos?** → Sim, por padrao (mas podem ser bloqueados)
 
 ---
 
@@ -32,10 +76,10 @@ O Brasil recebe milhoes de chamadas indesejadas diariamente — telemarketing, g
 
 O DDDLock utiliza o `CallScreeningService` do Android, uma API de nivel do sistema que intercepta chamadas recebidas antes que toquem. Quando uma chamada chega:
 
-1. O servico extrai o DDD do numero de telefone
-2. Verifica se o numero existe nos seus contatos (se sim, libera)
-3. Verifica se o DDD esta na sua lista de bloqueados
-4. Rejeita a chamada se bloqueado, libera se nao
+1. Verifica se o numero esta na lista de exceções (se sim, libera)
+2. Verifica se o numero esta bloqueado explicitamente (se sim, bloqueia)
+3. Verifica se o numero esta nos contatos (se sim, libera)
+4. Verifica o DDD (se bloqueado, rejeita)
 
 Essa abordagem e:
 - **Eficiente em bateria** — sem servicos persistentes
@@ -64,6 +108,7 @@ Baixe o APK mais recente em [Releases](https://github.com/eduardokryon/DDD-shiel
 2. Instale o APK
 3. Abra o DDDLock — ele ira solicitar as permissoes necessarias
 4. Defina o DDDLock como seu app padrao de Call Screening quando solicitado
+5. Leia e aceite as instrucoes no popup de boas-vindas
 
 Se o aviso nao aparecer:
 
@@ -74,10 +119,11 @@ Configuracoes → Apps → Apps padrao → App de bloqueio de chamadas → DDDLo
 ### Uso
 
 1. Abra o DDDLock
-2. Navegue ou busque DDDs por codigo, cidade ou estado
-3. Selecione os DDDs que deseja bloquear
+2. Leia o popup de instrucoes e marque que leu
+3. Na aba **Início**, selecione os DDDs que deseja bloquear
 4. Ative o bloqueador
-5. Pronto — chamadas bloqueadas serao rejeitadas silenciosamente
+5. Na aba **Números**, bloqueie numeros especificos ou adicione exceções
+6. Pronto — chamadas serao processadas conforme a hierarquia
 
 ---
 
