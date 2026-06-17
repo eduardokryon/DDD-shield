@@ -4,7 +4,7 @@
 
 **Bloqueio inteligente de chamadas por DDD**
 
-[**Baixar APK (v1.0.7)**](https://github.com/eduardokryon/DDD-shield/releases/latest)
+[**Baixar APK (v1.0.8)**](https://github.com/eduardokryon/DDD-shield/releases/latest)
 
 </div>
 
