@@ -4,11 +4,6 @@
 
 **Bloqueio inteligente de chamadas por DDD**
 
-[![v1.0.5](https://img.shields.io/badge/v1.0.5-E94560?style=flat-square)](https://github.com/eduardokryon/DDD-shield/releases/latest)
-[![MIT License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![API 26+](https://img.shields.io/badge/API-26%2B-brightgreen?style=flat-square)](https://developer.android.com/about/versions/oreo)
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF?style=flat-square&logo=kotlin)](https://kotlinlang.org)
-
 [**Baixar APK**](https://github.com/eduardokryon/DDD-shield/releases/latest)
 
 </div>
