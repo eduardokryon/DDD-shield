@@ -19,9 +19,9 @@ import kotlinx.coroutines.runBlocking
  * Utiliza exclusivamente a API oficial CallScreeningService.
  *
  * Hierarquia de bloqueio:
- * 1. Contatos protegidos → sempre permitidos
- * 2. Lista de exceções (whitelist) → permitidos mesmo com DDD bloqueado
- * 3. Números bloqueados → sempre bloqueados
+ * 1. Lista de exceções (whitelist) → SEMPRE permitidos
+ * 2. Números bloqueados → SEMPRE bloqueados (mesmo na agenda)
+ * 3. Contatos → permitidos (se não bloqueados explicitamente)
  * 4. DDDs bloqueados → bloqueados
  */
 class DDDCallScreeningService : CallScreeningService() {
@@ -29,21 +29,21 @@ class DDDCallScreeningService : CallScreeningService() {
     override fun onScreenCall(callDetails: Call.Details) {
         val phoneNumber = extractPhoneNumber(callDetails)
 
-        // 1. Se o número está nos contatos, não bloqueia
-        if (isContact(phoneNumber)) {
-            respondToCall(callDetails, createResponse(false))
-            return
-        }
-
-        // 2. Se o número está na lista de exceções, permite (mesmo com DDD bloqueado)
+        // 1. Lista de exceções tem prioridade máxima — sempre permite
         if (isNumberWhitelisted(phoneNumber)) {
             respondToCall(callDetails, createResponse(false))
             return
         }
 
-        // 3. Se o número específico está bloqueado, bloqueia
+        // 2. Números bloqueados explicitamente — sempre bloqueia (mesmo na agenda)
         if (isNumberBlocked(phoneNumber)) {
             respondToCall(callDetails, createResponse(true))
+            return
+        }
+
+        // 3. Contatos da agenda — permite (se não foi bloqueado explicitamente acima)
+        if (isContact(phoneNumber)) {
+            respondToCall(callDetails, createResponse(false))
             return
         }
 
