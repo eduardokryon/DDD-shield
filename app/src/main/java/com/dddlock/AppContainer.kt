@@ -11,10 +11,12 @@ import com.dddlock.domain.usecase.GetAllDDDsUseCase
 import com.dddlock.domain.usecase.GetBlockedDDDsUseCase
 import com.dddlock.domain.usecase.GetBlockedNumbersUseCase
 import com.dddlock.domain.usecase.GetBlockerStatusUseCase
+import com.dddlock.domain.usecase.GetWhitelistedNumbersUseCase
 import com.dddlock.domain.usecase.SearchDDDsUseCase
 import com.dddlock.domain.usecase.SetBlockerEnabledUseCase
 import com.dddlock.domain.usecase.ToggleDDDBlockUseCase
 import com.dddlock.domain.usecase.ToggleNumberBlockUseCase
+import com.dddlock.domain.usecase.ToggleWhitelistUseCase
 import com.dddlock.ui.screens.blocked.BlockedNumbersViewModel
 import com.dddlock.ui.screens.diagnosis.DiagnosisViewModel
 import com.dddlock.ui.screens.home.HomeViewModel
@@ -37,9 +39,11 @@ class AppContainer(val context: Context) {
     val getAllDDDsUseCase by lazy { GetAllDDDsUseCase(repository) }
     val getBlockedDDDsUseCase by lazy { GetBlockedDDDsUseCase(repository) }
     val getBlockedNumbersUseCase by lazy { GetBlockedNumbersUseCase(repository) }
+    val getWhitelistedNumbersUseCase by lazy { GetWhitelistedNumbersUseCase(repository) }
     val getBlockerStatusUseCase by lazy { GetBlockerStatusUseCase(repository) }
     val toggleDDDBlockUseCase by lazy { ToggleDDDBlockUseCase(repository) }
     val toggleNumberBlockUseCase by lazy { ToggleNumberBlockUseCase(repository) }
+    val toggleWhitelistUseCase by lazy { ToggleWhitelistUseCase(repository) }
     val searchDDDsUseCase by lazy { SearchDDDsUseCase(repository) }
     val setBlockerEnabledUseCase by lazy { SetBlockerEnabledUseCase(repository) }
 }
@@ -71,7 +75,9 @@ class DDDViewModelFactory(
                 BlockedNumbersViewModel(
                     application = container.context as Application,
                     getBlockedNumbers = container.getBlockedNumbersUseCase,
-                    toggleNumberBlock = container.toggleNumberBlockUseCase
+                    toggleNumberBlock = container.toggleNumberBlockUseCase,
+                    getWhitelistedNumbers = container.getWhitelistedNumbersUseCase,
+                    toggleWhitelist = container.toggleWhitelistUseCase
                 ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

@@ -25,6 +25,8 @@ class DDDRepositoryImpl(
 
     override fun getBlockedNumbers(): Flow<Set<String>> = dataStore.blockedNumbers
 
+    override fun getWhitelistedNumbers(): Flow<Set<String>> = dataStore.whitelistedNumbers
+
     override fun getBlockerStatus(): Flow<BlockerStatus> {
         return combine(
             dataStore.isBlockerEnabled,
@@ -50,12 +52,23 @@ class DDDRepositoryImpl(
         dataStore.setBlockedNumbers(updated)
     }
 
+    override suspend fun toggleWhitelist(number: String, whitelist: Boolean) {
+        val current = dataStore.whitelistedNumbers.first()
+        val normalized = number.filter { it.isDigit() }
+        val updated = if (whitelist) current + normalized else current - normalized
+        dataStore.setWhitelistedNumbers(updated)
+    }
+
     override suspend fun getBlockedDDDsOnce(): Set<String> {
         return dataStore.getBlockedDDDsOnce()
     }
 
     override suspend fun getBlockedNumbersOnce(): Set<String> {
         return dataStore.getBlockedNumbersOnce()
+    }
+
+    override suspend fun getWhitelistedNumbersOnce(): Set<String> {
+        return dataStore.getWhitelistedNumbersOnce()
     }
 
     override suspend fun setBlockerEnabled(enabled: Boolean) {

@@ -17,25 +17,37 @@ import kotlinx.coroutines.runBlocking
  *
  * Serviço de bloqueio de chamadas baseado em DDDs.
  * Utiliza exclusivamente a API oficial CallScreeningService.
- * Números na lista de contatos NÃO são bloqueados.
+ *
+ * Hierarquia de bloqueio:
+ * 1. Contatos protegidos → sempre permitidos
+ * 2. Lista de exceções (whitelist) → permitidos mesmo com DDD bloqueado
+ * 3. Números bloqueados → sempre bloqueados
+ * 4. DDDs bloqueados → bloqueados
  */
 class DDDCallScreeningService : CallScreeningService() {
 
     override fun onScreenCall(callDetails: Call.Details) {
         val phoneNumber = extractPhoneNumber(callDetails)
 
-        // Se o número está nos contatos, não bloqueia
+        // 1. Se o número está nos contatos, não bloqueia
         if (isContact(phoneNumber)) {
             respondToCall(callDetails, createResponse(false))
             return
         }
 
-        // Verificar se o número específico está bloqueado
+        // 2. Se o número está na lista de exceções, permite (mesmo com DDD bloqueado)
+        if (isNumberWhitelisted(phoneNumber)) {
+            respondToCall(callDetails, createResponse(false))
+            return
+        }
+
+        // 3. Se o número específico está bloqueado, bloqueia
         if (isNumberBlocked(phoneNumber)) {
             respondToCall(callDetails, createResponse(true))
             return
         }
 
+        // 4. Verificar DDD
         val ddd = extractDDDFromNumber(phoneNumber)
 
         if (ddd == null) {
@@ -158,6 +170,32 @@ class DDDCallScreeningService : CallScreeningService() {
         val app = application as? DDDLockApplication ?: return emptySet()
         return runBlocking {
             app.container.dataStore.getBlockedNumbersOnce()
+        }
+    }
+
+    private fun getWhitelistedNumbers(): Set<String> {
+        val app = application as? DDDLockApplication ?: return emptySet()
+        return runBlocking {
+            app.container.dataStore.getWhitelistedNumbersOnce()
+        }
+    }
+
+    private fun isNumberWhitelisted(phoneNumber: String?): Boolean {
+        if (phoneNumber.isNullOrBlank()) return false
+        val whitelistedNumbers = getWhitelistedNumbers()
+        if (whitelistedNumbers.isEmpty()) return false
+
+        val digits = phoneNumber.filter { it.isDigit() }
+        val normalized = when {
+            digits.startsWith("55") && digits.length >= 12 -> digits.substring(2)
+            digits.startsWith("0") && digits.length > 2 -> digits.substring(1)
+            else -> digits
+        }
+
+        return whitelistedNumbers.any { whitelisted ->
+            whitelisted == normalized ||
+            (normalized.length >= 8 && whitelisted.length >= 8 &&
+             normalized.takeLast(8) == whitelisted.takeLast(8))
         }
     }
 

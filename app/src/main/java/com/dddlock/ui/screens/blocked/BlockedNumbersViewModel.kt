@@ -6,7 +6,9 @@ import android.provider.ContactsContract
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dddlock.domain.usecase.GetBlockedNumbersUseCase
+import com.dddlock.domain.usecase.GetWhitelistedNumbersUseCase
 import com.dddlock.domain.usecase.ToggleNumberBlockUseCase
+import com.dddlock.domain.usecase.ToggleWhitelistUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,16 +29,20 @@ data class ContactInfo(
 
 data class BlockedNumbersUiState(
     val blockedNumbers: Set<String> = emptySet(),
+    val whitelistedNumbers: Set<String> = emptySet(),
     val contacts: List<ContactInfo> = emptyList(),
     val filteredContacts: List<ContactInfo> = emptyList(),
     val searchQuery: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val selectedTab: Int = 0 // 0 = bloqueados, 1 = exceções
 )
 
 class BlockedNumbersViewModel(
     application: Application,
     private val getBlockedNumbers: GetBlockedNumbersUseCase,
-    private val toggleNumberBlock: ToggleNumberBlockUseCase
+    private val toggleNumberBlock: ToggleNumberBlockUseCase,
+    private val getWhitelistedNumbers: GetWhitelistedNumbersUseCase,
+    private val toggleWhitelist: ToggleWhitelistUseCase
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(BlockedNumbersUiState())
@@ -48,6 +54,12 @@ class BlockedNumbersViewModel(
         viewModelScope.launch {
             getBlockedNumbers().collect { blocked ->
                 _uiState.value = _uiState.value.copy(blockedNumbers = blocked)
+            }
+        }
+
+        viewModelScope.launch {
+            getWhitelistedNumbers().collect { whitelisted ->
+                _uiState.value = _uiState.value.copy(whitelistedNumbers = whitelisted)
             }
         }
     }
@@ -87,7 +99,7 @@ class BlockedNumbersViewModel(
             cursor?.let {
                 while (it.moveToNext()) {
                     val name = it.getString(0) ?: continue
-                    val number = it.getString(0) ?: continue
+                    val number = it.getString(1) ?: continue
                     val digits = number.filter { c -> c.isDigit() }
                     val normalized = normalizeNumber(digits)
 
@@ -113,6 +125,10 @@ class BlockedNumbersViewModel(
         }
     }
 
+    fun onTabSelected(tab: Int) {
+        _uiState.value = _uiState.value.copy(selectedTab = tab)
+    }
+
     fun onSearchQueryChanged(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
         val filtered = if (query.isBlank()) {
@@ -129,21 +145,35 @@ class BlockedNumbersViewModel(
     }
 
     fun onToggleNumber(number: String) {
-        val isCurrentlyBlocked = _uiState.value.blockedNumbers.any { blocked ->
-            blocked == number ||
-            (blocked.length >= 8 && number.length >= 8 &&
-             blocked.takeLast(8) == number.takeLast(8))
-        }
-
+        val isCurrentlyBlocked = isNumberInList(number, _uiState.value.blockedNumbers)
         viewModelScope.launch {
             toggleNumberBlock(number, !isCurrentlyBlocked)
+        }
+    }
+
+    fun onToggleWhitelist(number: String) {
+        val isCurrentlyWhitelisted = isNumberInList(number, _uiState.value.whitelistedNumbers)
+        viewModelScope.launch {
+            toggleWhitelist(number, !isCurrentlyWhitelisted)
         }
     }
 
     fun onAddNumberManually(number: String) {
         if (number.isBlank()) return
         viewModelScope.launch {
-            toggleNumberBlock(number, true)
+            if (_uiState.value.selectedTab == 0) {
+                toggleNumberBlock(number, true)
+            } else {
+                toggleWhitelist(number, true)
+            }
+        }
+    }
+
+    private fun isNumberInList(number: String, list: Set<String>): Boolean {
+        return list.any { item ->
+            item == number ||
+            (item.length >= 8 && number.length >= 8 &&
+             item.takeLast(8) == number.takeLast(8))
         }
     }
 }
